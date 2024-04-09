@@ -33,18 +33,31 @@
                     <div class="p-4 rounded bg-slate-900" v-for="champion in Object.values(champions)">
                         <div class="flex items-center mb-2">
                             <img :src="champion.icon" class="w-16 h-16 mr-2" />
-                            <div class="font-bold">{{ champion.name }}</div>
+                            <div>
+                                <div class="font-bold">{{ champion.name }}</div>
+                                <div class="text-xs text-slate-400">{{ champion.id }}</div>
+                            </div>
                         </div>
-                        <!--
                         <div class="flex">
                             <img class="w-8 h-8 mr-2" :src="champion.ability.icon" />
                             <div>
                                 <div class="font-bold">{{ champion.ability.name }}</div>
                                 <div v-html="champion.ability.description" class="text-slate-400 text-sm"></div>
-                                <div class="text-xs hidden">{{ champion.ability.effects }}</div>
+                                <div class="my-4 border-t border-slate-400">
+                                    <div class="my-4">
+                                        <div class="text-xs text-slate-400" v-for="variable in champion.ability.description.match(/@(.*?)@/gi)">
+                                            {{ variable }}
+                                        </div>
+                                    </div>
+                                    <div class="my-4">
+                                        <div class="my-1 text-xs text-slate-400" v-for="[key, value] in Object.entries(champion.ability.effects)">
+                                            <div>{{ key }}</div>
+                                            <div>{{ value }}</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        -->
                     </div>
                 </div>
             </div>
@@ -91,11 +104,13 @@
                 }
             },
             mounted: async function() {
-                const version = "14.6.1"
-                this.augments = await fetch(`/${version}/augments.json`).then(result => result.json())
-                this.champions = await fetch(`/${version}/champions.json`).then(result => result.json())
-                this.items = await fetch(`/${version}/items.json`).then(result => result.json())
-                this.traits = await fetch(`/${version}/traits.json`).then(result => result.json())
+                const version = "14.7.1"
+                const language = "zh_cn"
+
+                this.augments  = await fetch(`/${version}/${language}/augments.json`).then(result => result.json())
+                this.champions = await fetch(`/${version}/${language}/champions.json`).then(result => result.json())
+                this.items     = await fetch(`/${version}/${language}/items.json`).then(result => result.json())
+                this.traits    = await fetch(`/${version}/${language}/traits.json`).then(result => result.json())
             },
         }).mount("#app")
     </script>
