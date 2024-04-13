@@ -34,7 +34,7 @@ function find_trait_from_name(traits, name) {
     return Object.values(traits).find(trait => trait.name === name)
 }
 
-function get_champions_with_trait(trait) {
+function get_champions_with_trait(champions, trait) {
     return Object.values(champions).filter(champion => champion.trait_ids.includes(trait.id))
 }
 
@@ -113,6 +113,18 @@ for(const language of languages) {
     const augments = await create_resource_objects(data_dragon, community_dragon, "augments", (augment) => {
         const description = replace_description_attributes(augment.desc, augment.effects)
 
+        let tier = null
+        const icon_name = augment.icon.split("/").at(-1).split(".").at(0)
+
+        if(/(i|1)$/gi.test(icon_name))
+            tier = 1
+
+        if(/(ii|2)$/gi.test(icon_name))
+            tier = 2
+
+        if(/(iii|3)$/gi.test(icon_name))
+            tier = 3
+
         return {
             [augment.apiName]: {
                 id:                  augment.apiName,
@@ -122,6 +134,7 @@ for(const language of languages) {
                 incompatible_traits: augment.incompatibleTraits,
                 name:                augment.name,
                 unique:              augment.unique,
+                tier,
                 description,
             }
         }
@@ -223,6 +236,10 @@ for(const language of languages) {
             },
         }
     })
+
+    for(const [trait_id, trait] of Object.entries(traits)) {
+        traits[trait_id].champion_ids = [...get_champions_with_trait(champions, trait).map(champion => champion.id)]
+    }
 
     await mkdir(`${versions.data_dragon}/${language}`, { recursive: true });
     Bun.write(`${versions.data_dragon}/${language}/augments.json`, JSON.stringify(augments))

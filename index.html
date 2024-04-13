@@ -17,11 +17,12 @@
         <div class="py-2">
             <div :class="tab === 'augments' ? '' : 'hidden'">
                 <div class="grid grid-cols-4 gap-2">
-                    <div class="flex p-4 rounded bg-slate-900" v-for="augment in Object.values(augments)">
+                    <div class="flex p-4 rounded bg-slate-900" v-for="augment in Object.values(augments).sort((a, b) => a.tier - b.tier)">
                         <img :src="augment.icon" class="w-8 h-8 mr-2" />
                         <div>
                             <div class="hidden">{{ augment.id }}</div>
                             <div class="font-bold">{{ augment.name }}</div>
+                            <div class="text-slate-400 text-sm hidden">{{ augment.tier }}</div>
                             <div class="text-slate-400 text-sm" v-html="augment.description"></div>
                             <div class="hidden text-xs">{{ augment.effects }}</div>
                         </div>
@@ -30,12 +31,15 @@
             </div>
             <div :class="tab === 'champions' ? '' : 'hidden'">
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="p-4 rounded bg-slate-900" v-for="champion in Object.values(champions)">
+                    <div class="p-4 rounded bg-slate-900" v-for="champion in Object.values(champions).sort((a, b) => a.cost - b.cost)">
                         <div class="flex items-center mb-2">
-                            <img :src="champion.icon" class="w-16 h-16 mr-2" />
+                            <img :src="champion.icon" :class="`w-16 h-16 mr-2 border-2 ${get_border_color_with_cost(champion.cost)}`" />
                             <div>
                                 <div class="font-bold">{{ champion.name }}</div>
-                                <div class="text-xs text-slate-400">{{ champion.id }}</div>
+                                <div class="text-xs text-slate-400 hidden">{{ champion.id }}</div>
+                                <div class="flex mt-1">
+                                    <img class="w-4 mr-1 mb-1" v-for="trait in champion.trait_ids.map(id => traits[id])" :src="trait.icon" />
+                                </div>
                             </div>
                         </div>
                         <div class="flex">
@@ -43,7 +47,7 @@
                             <div>
                                 <div class="font-bold">{{ champion.ability.name }}</div>
                                 <div v-html="champion.ability.description" class="text-slate-400 text-sm"></div>
-                                <div class="my-4 border-t border-slate-400">
+                                <div class="my-4 border-t border-slate-400 hidden">
                                     <div class="my-4">
                                         <div class="text-xs text-slate-400" v-for="variable in champion.ability.description.match(/@(.*?)@/gi)">
                                             {{ variable }}
@@ -70,6 +74,9 @@
                             <div class="font-bold">{{ item.name }}</div>
                             <div class="text-slate-400 text-sm" v-html="item.description"></div>
                             <div class="hidden text-xs">{{ item.effects }}</div>
+                            <div class="flex flex-wrap mt-4">
+                                <img class="w-4 mr-1 mb-1" v-for="base_item in item.composition.map(id => items[id])" :src="base_item.icon" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -81,6 +88,10 @@
                         <div>
                             <div class="hidden">{{ trait.id }}</div>
                             <div class="font-bold">{{ trait.name }}</div>
+                            <div class="flex flex-wrap my-2">
+                                <img :class="`w-8 mr-1 mb-1 border-2 ${get_border_color_with_cost(champion.cost)}`" v-for="champion in trait.champion_ids.map(id => champions[id]).sort((a, b) => a.cost - b.cost)" :src="champion.icon" />
+                                <img class="w-8 mr-1 mb-1" v-if="Object.values(items).find(item => item.incompatible_traits.includes(trait.id))" :src="Object.values(items).find(item => item.incompatible_traits.includes(trait.id)).icon" />
+                            </div>
                             <div v-html="trait.description" class="text-slate-400 text-sm"></div>
                             <div class="hidden text-xs">{{ trait.effects }}</div>
                         </div>
@@ -111,6 +122,20 @@
                 this.champions = await fetch(`/${version}/${language}/champions.json`).then(result => result.json())
                 this.items     = await fetch(`/${version}/${language}/items.json`).then(result => result.json())
                 this.traits    = await fetch(`/${version}/${language}/traits.json`).then(result => result.json())
+            },
+            methods: {
+                get_border_color_with_cost(cost) {
+                    const borders = [
+                        "",
+                        "border-slate-400",
+                        "border-green-400",
+                        "border-blue-400",
+                        "border-purple-400",
+                        "border-yellow-400",
+                    ]
+
+                    return borders[cost]
+                },
             },
         }).mount("#app")
     </script>
