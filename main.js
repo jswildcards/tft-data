@@ -134,6 +134,7 @@ for(const language of languages) {
                 incompatible_traits: augment.incompatibleTraits,
                 name:                augment.name,
                 unique:              augment.unique,
+                effects:             augment.effects,
                 tier,
                 description,
             }
@@ -152,6 +153,7 @@ for(const language of languages) {
                 incompatible_traits: item.incompatibleTraits,
                 name:                item.name,
                 unique:              item.unique,
+                effects:             item.effects,
                 description,
             }
         }
