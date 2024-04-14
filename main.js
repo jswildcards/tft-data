@@ -66,7 +66,7 @@ function replace_description_attributes(description, effects, rules) {
         if(/minunits/gi.test(attribute_raw)) {
             new_description = new_description.replace(
                 `(${attribute_raw})`,
-                `<div class="trait-style trait-style--${shifted_effects.style}">${shifted_effects.minUnits}</div>`
+                `<div class="trait-style trait-style--${effects.style}">${effects.minUnits}</div>`
             )
 
             continue
