@@ -63,17 +63,37 @@ function replace_description_attributes(description, effects, rules) {
     const attributes = description.match(/@(.*?)@/gi) ?? []
 
     for(const attribute_raw of attributes) {
-        const [attribute, amplifier] = attribute_raw.replace(/@|Modified|Total|Scaled/g, "").toLowerCase().split("*")
+        if(/minunits/gi.test(attribute_raw)) {
+            new_description = new_description.replace(
+                `(${attribute_raw})`,
+                `<div class="trait-style trait-style--${shifted_effects.style}">${shifted_effects.minUnits}</div>`
+            )
+
+            continue
+        }
+
+        const [attribute, amplifier] = attribute_raw.
+            replace(/@|Modified|Total|Scaled/g, "").
+            toLowerCase().
+            split("*")
+
         const attribute_hex = fnv.hash(attribute, 32).hex()
 
-        let values = shifted_effects[attribute] ?? shifted_effects[`base${attribute}`] ?? shifted_effects[`flat${attribute}`] ?? shifted_effects[`{${attribute_hex}}`] ?? shifted_effects[rules?.[attribute_raw]?.toLowerCase()] ?? "?"
+        let values =
+            shifted_effects[attribute] ??
+            shifted_effects[`base${attribute}`] ??
+            shifted_effects[`flat${attribute}`] ??
+            shifted_effects[`{${attribute_hex}}`] ??
+            shifted_effects[rules?.[attribute_raw]?.toLowerCase()] ??
+            "?"
 
         if(!Array.isArray(values))
             values = [values]
 
         values = values.map(value => {
+            // we need to pick a number to replace `absent` value, 0 is this best number to represent `absent`
             if(is_absent(value))
-                return value
+                return 0
 
             if(is_absent(amplifier))
                 return truncate_number(value)
