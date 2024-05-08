@@ -1,0 +1,5 @@
+{
+    "@ModifiedArmor@": "BaseResists",
+    "@ModifiedMagicResist@": "BaseResists",
+    "@ModifiedShieldAmount@": "ShieldPercent"
+}
